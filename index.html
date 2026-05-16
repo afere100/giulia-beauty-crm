@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Giulia Beauty CRM</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0e0e0f;
+      --surface: #1a1a1e;
+      --surface2: #242428;
+      --border: #2e2e34;
+      --gold: #C9A84C;
+      --gold-dim: rgba(201,168,76,0.15);
+      --gold-hover: #e0bc62;
+      --text: #f0f0f0;
+      --text-muted: #888;
+      --red: #e05555;
+      --green: #4caf7d;
+      --blue: #5b9bd5;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      direction: rtl;
+    }
+
+    /* HEADER */
+    .header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 16px 20px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .header-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+    .logo {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--gold);
+      letter-spacing: 0.5px;
+    }
+    .logo span { color: var(--text); font-weight: 400; }
+    .add-btn {
+      background: var(--gold);
+      color: #000;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 18px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.2s;
+      font-family: inherit;
+    }
+    .add-btn:hover { background: var(--gold-hover); }
+
+    /* STATS */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .stat {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 10px;
+      text-align: center;
+    }
+    .stat-value {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--gold);
+      line-height: 1;
+    }
+    .stat-label {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    /* SEARCH */
+    .search-wrap {
+      position: relative;
+      margin-bottom: 12px;
+    }
+    .search-input {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 14px 10px 36px;
+      color: var(--text);
+      font-size: 14px;
+      font-family: inherit;
+      direction: rtl;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .search-input:focus { border-color: var(--gold); }
+    .search-input::placeholder { color: var(--text-muted); }
+    .search-icon {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      font-size: 14px;
+      pointer-events: none;
+    }
+
+    /* FILTERS */
+    .filters {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+      scrollbar-width: none;
+    }
+    .filters::-webkit-scrollbar { display: none; }
+    .filter-btn {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 6px 14px;
+      color: var(--text-muted);
+      font-size: 12px;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s;
+      font-family: inherit;
+    }
+    .filter-btn.active {
+      background: var(--gold-dim);
+      border-color: var(--gold);
+      color: var(--gold);
+    }
+
+    /* MAIN CONTENT */
+    .main {
+      padding: 16px 20px;
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
+    .leads-count {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+    }
+
+    /* LEAD CARDS */
+    .lead-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 12px;
+      transition: border-color 0.2s;
+    }
+    .lead-card:hover { border-color: #444; }
+
+    .card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 10px;
+      gap: 8px;
+    }
+    .lead-name {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text);
+      flex: 1;
+    }
+    .status-badge {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 20px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .badge-new      { background: rgba(91,155,213,0.15); color: #5b9bd5; border: 1px solid rgba(91,155,213,0.3); }
+    .badge-contacted{ background: rgba(201,168,76,0.15); color: var(--gold); border: 1px solid rgba(201,168,76,0.3); }
+    .badge-interested{ background: rgba(180,120,200,0.15); color: #b478c8; border: 1px solid rgba(180,120,200,0.3); }
+    .badge-booked   { background: rgba(76,175,125,0.15); color: var(--green); border: 1px solid rgba(76,175,125,0.3); }
+    .badge-client   { background: rgba(76,175,125,0.25); color: #6fcf97; border: 1px solid rgba(111,207,151,0.4); }
+    .badge-lost     { background: rgba(224,85,85,0.15); color: var(--red); border: 1px solid rgba(224,85,85,0.3); }
+
+    .card-meta {
+      display: flex;
+      gap: 14px;
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+    .card-meta span { display: flex; align-items: center; gap: 4px; }
+
+    .card-notes {
+      font-size: 12px;
+      color: var(--text-muted);
+      background: var(--surface2);
+      border-radius: 6px;
+      padding: 8px 10px;
+      margin-bottom: 12px;
+      line-height: 1.5;
+    }
+
+    .card-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .action-btn {
+      border: none;
+      border-radius: 7px;
+      padding: 7px 14px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: inherit;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .btn-call { background: rgba(76,175,125,0.15); color: var(--green); border: 1px solid rgba(76,175,125,0.3); }
+    .btn-call:hover { background: rgba(76,175,125,0.3); }
+    .btn-wa   { background: rgba(37,211,102,0.1); color: #25d366; border: 1px solid rgba(37,211,102,0.3); }
+    .btn-wa:hover { background: rgba(37,211,102,0.2); }
+    .btn-edit { background: var(--surface2); color: var(--text-muted); border: 1px solid var(--border); }
+    .btn-edit:hover { border-color: var(--gold); color: var(--gold); }
+    .btn-del  { background: rgba(224,85,85,0.1); color: var(--red); border: 1px solid rgba(224,85,85,0.2); margin-right: auto; }
+    .btn-del:hover { background: rgba(224,85,85,0.25); }
+
+    .status-select {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 7px;
+      padding: 7px 10px;
+      font-size: 12px;
+      font-family: inherit;
+      cursor: pointer;
+      outline: none;
+      direction: rtl;
+    }
+    .status-select:focus { border-color: var(--gold); }
+
+    /* EMPTY STATE */
+    .empty {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--text-muted);
+    }
+    .empty-icon { font-size: 48px; margin-bottom: 12px; }
+    .empty-title { font-size: 16px; margin-bottom: 6px; color: var(--text); }
+
+    /* MODAL */
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      z-index: 200;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s;
+    }
+    .overlay.open {
+      opacity: 1;
+      pointer-events: all;
+    }
+    .modal {
+      background: var(--surface);
+      border-radius: 20px 20px 0 0;
+      width: 100%;
+      max-width: 600px;
+      padding: 24px 20px 32px;
+      max-height: 90vh;
+      overflow-y: auto;
+      transform: translateY(100%);
+      transition: transform 0.3s ease;
+      direction: rtl;
+    }
+    .overlay.open .modal { transform: translateY(0); }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    .modal-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--gold);
+    }
+    .close-btn {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      border-radius: 50%;
+      width: 32px;
+      height: 32px;
+      cursor: pointer;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: color 0.2s;
+    }
+    .close-btn:hover { color: var(--text); }
+
+    .form-group { margin-bottom: 16px; }
+    .form-label {
+      display: block;
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+      font-weight: 500;
+    }
+    .form-input, .form-select, .form-textarea {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 11px 14px;
+      color: var(--text);
+      font-size: 14px;
+      font-family: inherit;
+      direction: rtl;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .form-input:focus, .form-select:focus, .form-textarea:focus { border-color: var(--gold); }
+    .form-textarea { resize: vertical; min-height: 80px; }
+    .form-select option { background: var(--surface2); }
+
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+    .submit-btn {
+      width: 100%;
+      background: var(--gold);
+      color: #000;
+      border: none;
+      border-radius: 10px;
+      padding: 14px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+      margin-top: 8px;
+      transition: background 0.2s;
+    }
+    .submit-btn:hover { background: var(--gold-hover); }
+    .submit-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* TOAST */
+    .toast-container {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 500;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      pointer-events: none;
+      min-width: 260px;
+    }
+    .toast {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 16px;
+      font-size: 13px;
+      font-weight: 500;
+      text-align: center;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+      animation: slideUp 0.3s ease, fadeOut 0.4s ease 2.3s forwards;
+      white-space: nowrap;
+    }
+    .toast.success { border-color: var(--green); color: var(--green); }
+    .toast.error   { border-color: var(--red);   color: var(--red); }
+    .toast.info    { border-color: var(--gold);   color: var(--gold); }
+
+    @keyframes slideUp {
+      from { transform: translateY(20px); opacity: 0; }
+      to   { transform: translateY(0);    opacity: 1; }
+    }
+    @keyframes fadeOut {
+      from { opacity: 1; }
+      to   { opacity: 0; }
+    }
+
+    /* LOADING */
+    .loading {
+      text-align: center;
+      padding: 40px;
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+    .spinner {
+      width: 28px; height: 28px;
+      border: 3px solid var(--border);
+      border-top-color: var(--gold);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 12px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* DELETE CONFIRM */
+    .confirm-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      z-index: 300;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s;
+    }
+    .confirm-overlay.open { opacity: 1; pointer-events: all; }
+    .confirm-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px 20px;
+      max-width: 320px;
+      width: 100%;
+      text-align: center;
+      direction: rtl;
+    }
+    .confirm-icon { font-size: 36px; margin-bottom: 12px; }
+    .confirm-title { font-size: 16px; font-weight: 700; margin-bottom: 8px; }
+    .confirm-msg { font-size: 13px; color: var(--text-muted); margin-bottom: 20px; line-height: 1.5; }
+    .confirm-actions { display: flex; gap: 10px; }
+    .confirm-cancel {
+      flex: 1; background: var(--surface2); border: 1px solid var(--border);
+      color: var(--text); border-radius: 8px; padding: 11px; font-size: 14px;
+      font-family: inherit; cursor: pointer; font-weight: 600;
+    }
+    .confirm-delete {
+      flex: 1; background: var(--red); border: none;
+      color: #fff; border-radius: 8px; padding: 11px; font-size: 14px;
+      font-family: inherit; cursor: pointer; font-weight: 600;
+    }
+
+    @media (max-width: 480px) {
+      .stats { grid-template-columns: repeat(4, 1fr); gap: 6px; }
+      .stat { padding: 10px 6px; }
+      .stat-value { font-size: 18px; }
+      .stat-label { font-size: 10px; }
+      .form-row { grid-template-columns: 1fr; }
+      .card-actions { gap: 6px; }
+      .action-btn { padding: 7px 10px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="header-top">
+    <div class="logo">Giulia Beauty <span>CRM</span></div>
+    <button class="add-btn" onclick="openModal()">+ إضافة عميل</button>
+  </div>
+
+  <div class="stats">
+    <div class="stat">
+      <div class="stat-value" id="stat-total">—</div>
+      <div class="stat-label">الإجمالي</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value" id="stat-new">—</div>
+      <div class="stat-label">جديد</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value" id="stat-booked">—</div>
+      <div class="stat-label">محجوز</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value" id="stat-client">—</div>
+      <div class="stat-label">عميلة</div>
+    </div>
+  </div>
+
+  <div class="search-wrap">
+    <input class="search-input" id="searchInput" type="text" placeholder="البحث بالاسم أو رقم الهاتف..." oninput="renderLeads()" />
+    <span class="search-icon">🔍</span>
+  </div>
+
+  <div class="filters" id="filters">
+    <button class="filter-btn active" data-status="all" onclick="setFilter('all', this)">الكل</button>
+    <button class="filter-btn" data-status="new" onclick="setFilter('new', this)">جديد</button>
+    <button class="filter-btn" data-status="contacted" onclick="setFilter('contacted', this)">تم الاتصال</button>
+    <button class="filter-btn" data-status="interested" onclick="setFilter('interested', this)">مهتمة</button>
+    <button class="filter-btn" data-status="booked" onclick="setFilter('booked', this)">محجوز</button>
+    <button class="filter-btn" data-status="client" onclick="setFilter('client', this)">عميلة</button>
+    <button class="filter-btn" data-status="lost" onclick="setFilter('lost', this)">مفقود</button>
+  </div>
+</header>
+
+<!-- MAIN -->
+<main class="main">
+  <div class="leads-count" id="leadsCount"></div>
+  <div id="leadsList"></div>
+</main>
+
+<!-- ADD/EDIT MODAL -->
+<div class="overlay" id="overlay" onclick="handleOverlayClick(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modalTitle">إضافة عميلة جديدة</div>
+      <button class="close-btn" onclick="closeModal()">✕</button>
+    </div>
+
+    <form id="leadForm" onsubmit="submitLead(event)">
+      <input type="hidden" id="editId" />
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">الاسم الكامل *</label>
+          <input class="form-input" id="fName" required placeholder="مثال: سارة أحمد" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">رقم الهاتف</label>
+          <input class="form-input" id="fPhone" placeholder="0612345678" />
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">الخدمة</label>
+          <select class="form-select" id="fService">
+            <option value="">اختر الخدمة</option>
+            <option value="عروس">عروس</option>
+            <option value="كوافير">كوافير</option>
+            <option value="ميكياج">ميكياج</option>
+            <option value="مانيكير">مانيكير</option>
+            <option value="عناية بالبشرة">عناية بالبشرة</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">الحالة</label>
+          <select class="form-select" id="fStatus">
+            <option value="new">جديد</option>
+            <option value="contacted">تم الاتصال</option>
+            <option value="interested">مهتمة</option>
+            <option value="booked">محجوز</option>
+            <option value="client">عميلة</option>
+            <option value="lost">مفقود</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">ملاحظات</label>
+        <textarea class="form-textarea" id="fNotes" placeholder="أي معلومات إضافية..."></textarea>
+      </div>
+
+      <button class="submit-btn" type="submit" id="submitBtn">حفظ العميلة</button>
+    </form>
+  </div>
+</div>
+
+<!-- DELETE CONFIRM -->
+<div class="confirm-overlay" id="confirmOverlay">
+  <div class="confirm-box">
+    <div class="confirm-icon">🗑️</div>
+    <div class="confirm-title">حذف العميلة</div>
+    <div class="confirm-msg" id="confirmMsg">هل أنت متأكدة من حذف هذه العميلة؟ لا يمكن التراجع عن هذا الإجراء.</div>
+    <div class="confirm-actions">
+      <button class="confirm-cancel" onclick="closeConfirm()">إلغاء</button>
+      <button class="confirm-delete" id="confirmDeleteBtn">حذف</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST CONTAINER -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+  // ── CONFIG ─────────────────────────────────────────────────────────────────
+  const SUPABASE_URL  = 'https://brohjgataiwbrosaqxmc.supabase.co';
+  const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJyb2hqZ2F0YWl3YnJvc2FxeG1jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg4NTYzNTQsImV4cCI6MjA5NDQzMjM1NH0.BtG1UByuFln0ocWL80xlCI8eoAWRd4E2vXFa8LFuePM';
+  const HEADERS = { 'apikey': SUPABASE_ANON, 'Authorization': `Bearer ${SUPABASE_ANON}`, 'Content-Type': 'application/json', 'Prefer': 'return=representation' };
+
+  // ── STATE ──────────────────────────────────────────────────────────────────
+  let leads = [];
+  let activeFilter = 'all';
+  let pendingDeleteId = null;
+
+  // ── API ────────────────────────────────────────────────────────────────────
+  async function api(path, method = 'GET', body = null) {
+    const opts = { method, headers: { ...HEADERS } };
+    if (body) opts.body = JSON.stringify(body);
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, opts);
+    if (!res.ok) {
+      const err = await res.text();
+      throw new Error(err || res.statusText);
+    }
+    const text = await res.text();
+    return text ? JSON.parse(text) : null;
+  }
+
+  async function fetchLeads() {
+    showLoading();
+    try {
+      leads = await api('leads?select=*&order=created_at.desc');
+      renderLeads();
+      updateStats();
+    } catch (e) {
+      showToast('خطأ في تحميل البيانات: ' + e.message, 'error');
+      document.getElementById('leadsList').innerHTML = `<div class="empty"><div class="empty-icon">⚠️</div><div class="empty-title">تعذر الاتصال بقاعدة البيانات</div></div>`;
+    }
+  }
+
+  async function createLead(data) {
+    return api('leads', 'POST', data);
+  }
+
+  async function updateLead(id, data) {
+    return api(`leads?id=eq.${id}`, 'PATCH', data);
+  }
+
+  async function deleteLead(id) {
+    return api(`leads?id=eq.${id}`, 'DELETE');
+  }
+
+  // ── RENDER ─────────────────────────────────────────────────────────────────
+  const statusLabel = { new: 'جديد', contacted: 'تم الاتصال', interested: 'مهتمة', booked: 'محجوز', client: 'عميلة', lost: 'مفقود' };
+  const serviceIcon = { 'عروس': '👰', 'كوافير': '💇', 'ميكياج': '💄', 'مانيكير': '💅', 'عناية بالبشرة': '✨' };
+
+  function getFiltered() {
+    const q = document.getElementById('searchInput').value.trim().toLowerCase();
+    return leads.filter(l => {
+      const matchFilter = activeFilter === 'all' || l.status === activeFilter;
+      const matchSearch = !q || (l.name || '').toLowerCase().includes(q) || (l.phone || '').includes(q);
+      return matchFilter && matchSearch;
+    });
+  }
+
+  function showLoading() {
+    document.getElementById('leadsList').innerHTML = `<div class="loading"><div class="spinner"></div>جاري التحميل...</div>`;
+  }
+
+  function renderLeads() {
+    const filtered = getFiltered();
+    const count = document.getElementById('leadsCount');
+    count.textContent = `${filtered.length} عميلة`;
+
+    const list = document.getElementById('leadsList');
+    if (!filtered.length) {
+      list.innerHTML = `<div class="empty"><div class="empty-icon">🔍</div><div class="empty-title">لا توجد نتائج</div><div>جربي بحثاً مختلفاً أو أضيفي عميلة جديدة</div></div>`;
+      return;
+    }
+
+    list.innerHTML = filtered.map(lead => {
+      const date = lead.created_at ? new Date(lead.created_at).toLocaleDateString('ar-MA') : '';
+      const icon = serviceIcon[lead.service] || '💁';
+      return `
+        <div class="lead-card" id="card-${lead.id}">
+          <div class="card-top">
+            <div class="lead-name">${esc(lead.name)}</div>
+            <span class="status-badge badge-${lead.status}">${statusLabel[lead.status] || lead.status}</span>
+          </div>
+          <div class="card-meta">
+            ${lead.service ? `<span>${icon} ${esc(lead.service)}</span>` : ''}
+            ${lead.phone ? `<span>📞 ${esc(lead.phone)}</span>` : ''}
+            ${date ? `<span>📅 ${date}</span>` : ''}
+            <span>📍 Meta Ads</span>
+          </div>
+          ${lead.notes ? `<div class="card-notes">${esc(lead.notes)}</div>` : ''}
+          <div class="card-actions">
+            ${lead.phone ? `<button class="action-btn btn-call" onclick="callLead('${esc(lead.phone)}')">📞 اتصال</button>` : ''}
+            ${lead.phone ? `<button class="action-btn btn-wa" onclick="whatsapp('${esc(lead.phone)}')">💬 واتساب</button>` : ''}
+            <select class="status-select" onchange="changeStatus('${lead.id}', this.value)">
+              <option value="new"       ${lead.status==='new'?'selected':''}>جديد</option>
+              <option value="contacted" ${lead.status==='contacted'?'selected':''}>تم الاتصال</option>
+              <option value="interested"${lead.status==='interested'?'selected':''}>مهتمة</option>
+              <option value="booked"    ${lead.status==='booked'?'selected':''}>محجوز</option>
+              <option value="client"    ${lead.status==='client'?'selected':''}>عميلة</option>
+              <option value="lost"      ${lead.status==='lost'?'selected':''}>مفقود</option>
+            </select>
+            <button class="action-btn btn-edit" onclick="editLead('${lead.id}')">✏️ تعديل</button>
+            <button class="action-btn btn-del" onclick="confirmDelete('${lead.id}', '${esc(lead.name)}')">🗑️</button>
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+  function updateStats() {
+    document.getElementById('stat-total').textContent  = leads.length;
+    document.getElementById('stat-new').textContent    = leads.filter(l => l.status === 'new').length;
+    document.getElementById('stat-booked').textContent = leads.filter(l => l.status === 'booked').length;
+    document.getElementById('stat-client').textContent = leads.filter(l => l.status === 'client').length;
+  }
+
+  function esc(s) {
+    return (s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  }
+
+  // ── FILTERS ────────────────────────────────────────────────────────────────
+  function setFilter(status, btn) {
+    activeFilter = status;
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderLeads();
+  }
+
+  // ── MODAL ──────────────────────────────────────────────────────────────────
+  function openModal(lead = null) {
+    document.getElementById('editId').value   = lead ? lead.id : '';
+    document.getElementById('fName').value    = lead ? lead.name : '';
+    document.getElementById('fPhone').value   = lead ? (lead.phone || '') : '';
+    document.getElementById('fService').value = lead ? (lead.service || '') : '';
+    document.getElementById('fStatus').value  = lead ? (lead.status || 'new') : 'new';
+    document.getElementById('fNotes').value   = lead ? (lead.notes || '') : '';
+    document.getElementById('modalTitle').textContent = lead ? 'تعديل بيانات العميلة' : 'إضافة عميلة جديدة';
+    document.getElementById('submitBtn').textContent  = lead ? 'حفظ التعديلات' : 'حفظ العميلة';
+    document.getElementById('overlay').classList.add('open');
+    document.body.style.overflow = 'hidden';
+    setTimeout(() => document.getElementById('fName').focus(), 300);
+  }
+
+  function closeModal() {
+    document.getElementById('overlay').classList.remove('open');
+    document.body.style.overflow = '';
+    document.getElementById('leadForm').reset();
+  }
+
+  function handleOverlayClick(e) {
+    if (e.target === document.getElementById('overlay')) closeModal();
+  }
+
+  function editLead(id) {
+    const lead = leads.find(l => l.id === id);
+    if (lead) openModal(lead);
+  }
+
+  async function submitLead(e) {
+    e.preventDefault();
+    const btn = document.getElementById('submitBtn');
+    btn.disabled = true;
+    btn.textContent = 'جاري الحفظ...';
+
+    const id = document.getElementById('editId').value;
+    const data = {
+      name:    document.getElementById('fName').value.trim(),
+      phone:   document.getElementById('fPhone').value.trim() || null,
+      service: document.getElementById('fService').value || null,
+      status:  document.getElementById('fStatus').value,
+      notes:   document.getElementById('fNotes').value.trim() || null,
+      updated_at: new Date().toISOString()
+    };
+
+    try {
+      if (id) {
+        await updateLead(id, data);
+        const idx = leads.findIndex(l => l.id === id);
+        if (idx !== -1) leads[idx] = { ...leads[idx], ...data };
+        showToast('✅ تم تحديث بيانات العميلة', 'success');
+      } else {
+        data.source = 'meta_ads';
+        const result = await createLead(data);
+        if (result && result[0]) leads.unshift(result[0]);
+        showToast('✅ تمت إضافة العميلة بنجاح', 'success');
+      }
+      closeModal();
+      renderLeads();
+      updateStats();
+    } catch (err) {
+      showToast('❌ خطأ: ' + err.message, 'error');
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
+  // ── STATUS CHANGE ──────────────────────────────────────────────────────────
+  async function changeStatus(id, newStatus) {
+    try {
+      await updateLead(id, { status: newStatus, updated_at: new Date().toISOString() });
+      const idx = leads.findIndex(l => l.id === id);
+      if (idx !== -1) leads[idx].status = newStatus;
+      renderLeads();
+      updateStats();
+      showToast(`✅ تم تغيير الحالة إلى: ${statusLabel[newStatus]}`, 'success');
+    } catch (err) {
+      showToast('❌ فشل تحديث الحالة', 'error');
+    }
+  }
+
+  // ── DELETE ─────────────────────────────────────────────────────────────────
+  function confirmDelete(id, name) {
+    pendingDeleteId = id;
+    document.getElementById('confirmMsg').textContent = `هل أنت متأكدة من حذف "${name}"؟ لا يمكن التراجع عن هذا الإجراء.`;
+    document.getElementById('confirmOverlay').classList.add('open');
+    document.getElementById('confirmDeleteBtn').onclick = async () => {
+      try {
+        await deleteLead(pendingDeleteId);
+        leads = leads.filter(l => l.id !== pendingDeleteId);
+        renderLeads();
+        updateStats();
+        closeConfirm();
+        showToast('🗑️ تم حذف العميلة', 'info');
+      } catch (err) {
+        showToast('❌ فشل الحذف: ' + err.message, 'error');
+        closeConfirm();
+      }
+    };
+  }
+
+  function closeConfirm() {
+    document.getElementById('confirmOverlay').classList.remove('open');
+    pendingDeleteId = null;
+  }
+
+  // ── ACTIONS ────────────────────────────────────────────────────────────────
+  function callLead(phone) {
+    window.open('tel:' + phone.replace(/\s/g, ''));
+    showToast('📞 جاري الاتصال...', 'info');
+  }
+
+  function whatsapp(phone) {
+    const clean = phone.replace(/[\s+\-()]/g, '');
+    const intl = clean.startsWith('0') ? '212' + clean.slice(1) : clean;
+    window.open(`https://wa.me/${intl}`, '_blank');
+    showToast('💬 فتح واتساب...', 'info');
+  }
+
+  // ── TOAST ──────────────────────────────────────────────────────────────────
+  function showToast(msg, type = 'info') {
+    const c = document.getElementById('toastContainer');
+    const t = document.createElement('div');
+    t.className = `toast ${type}`;
+    t.textContent = msg;
+    c.appendChild(t);
+    setTimeout(() => t.remove(), 2800);
+  }
+
+  // ── INIT ───────────────────────────────────────────────────────────────────
+  fetchLeads();
+</script>
+</body>
+</html>
